@@ -69,7 +69,6 @@ notifications.
     sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     ```
 
-
 ### Setup Github
 
 - Create a repo in [Github](github.com)
@@ -77,48 +76,51 @@ notifications.
 
 ### Setup SonarCloud
 
-- Add environment variable
-- 
+1. Open <https://sonarcloud.io/> in web browser
+1. Select sonarqube option and connect through github
+1. Choose organization `davidmargolis`
+1. Choose repo `course-3-project-1`
 
-
-
-
-### Setup Jenkins and SonarQube in AWS Practice Lab
+### Setup Jenkins in AWS Practice Lab
 
 1. Open and start [practice labs](https://caltech.lms.simplilearn.com/courses/4041/-PG-DO---CI%2FCD-Pipeline-with-Jenkins/practice-labs)
 1. Open [aws](https://us-east-1.console.aws.amazon.com/console/home?region=us-east-1#)
 1. [Create key pair](https://us-east-1.console.aws.amazon.com/ec2/v2/home?region=us-east-1#CreateKeyPair:):
-   - name - `jenkins_on_ec2`
-   - Private key file format - `pem`
+    - name - `jenkins_on_ec2`
+    - Private key file format - `pem`
 1. [Create security group](https://us-east-1.console.aws.amazon.com/ec2/v2/home?region=us-east-1#CreateSecurityGroup:):
-   - Security group name - `WebServerSG`
-   - Description - `Jenkins`
-   - Add Inbound Rules:
-     - Rule 1:
-       - Type - `SSH`
-       - Source - `My IP`
-     - Rule 2:
-       - Type - `HTTP`
-       - Source - `Anywhere-IPv4`
-     - Rule 3:
-       - Type - `Custom TCP`
-       - Port range - `8080`
-       - Source - `Anywhere-IPv4`
-     - Rule 4:
-       - Type - `Custom TCP`
-       - Port range - `9000`
-       - Source - `Anywhere-IPv4`
+    - Security group name - `WebServerSG`
+    - Description - `Jenkins`
+    - Add Inbound Rules:
+        - Rule 1:
+            - Type - `SSH`
+            - Source - `My IP`
+        - Rule 2:
+            - Type - `HTTP`
+            - Source - `Anywhere-IPv4`
+        - Rule 3:
+            - Type - `Custom TCP`
+            - Port range - `8080`
+            - Source - `Anywhere-IPv4`
+        - Rule 4:
+            - Type - `Custom TCP`
+            - Port range - `9000`
+            - Source - `Anywhere-IPv4`
 1. [Create ec2 instance](https://us-east-1.console.aws.amazon.com/ec2/v2/home?region=us-east-1#LaunchInstances:):
-   - Instance type pair name - `jenkins_on_ec2`
-   - Key pair name - `jenkins_on_ec2`
-   - Select <input type=radio checked> `existing security group`
-   - Common security groups Info - WebServerSG
+    - Instance type pair name - `jenkins_on_ec2`
+    - Key pair name - `jenkins_on_ec2`
+    - Select <input type=radio checked> `existing security group`
+    - Common security groups Info - WebServerSG
 1. Finish setting up the downloaded key and shell into the ec2 instance locally:
-   ```
-   mv /mnt/c/Users/david/Downloads/jenkins_on_ec2.pem ~/.ssh
-   chmod 400 ~/.ssh/jenkins_on_ec2.pem
-   ssh -i ~/.ssh/jenkins_on_ec2.pem ec2-user@ec2-54-211-207-91.compute-1.amazonaws.com
-   ```
+    ```
+    mv /mnt/c/Users/david/Downloads/jenkins_on_ec2.pem ~/.ssh \
+    && chmod 400 ~/.ssh/jenkins_on_ec2.pem \
+    && ssh -i ~/.ssh/jenkins_on_ec2.pem ec2-user@ec2-52-205-70-118.compute-1.amazonaws.com
+    ```
+1. Connect SonarQube:
+    ```
+    export SONAR_TOKEN=2c581c9ee6c76c94a440467e3abb59b06750b992
+    ```
 1. Install jenkins on EC2
     ```
     sudo yum update –y \
@@ -130,6 +132,26 @@ notifications.
         && sudo systemctl start jenkins \
         && sudo systemctl status jenkins
     ```
+1. Install git and maven
+    ```
+    sudo yum update -y \
+        && sudo yum install git maven -y
+    ```
+1. Configure Jenkins
+    1. Log into Jenkins <http://ec2-52-205-70-118.compute-1.amazonaws.com:8080/>
+    1. [Install plugins](http://ec2-52-205-70-118.compute-1.amazonaws.com:8080/pluginManager/available) - Standard ones, [SonarQube Scanner](https://plugins.jenkins.io/sonar/)
+        1. [Install SonarQube Scanner](http://ec2-52-205-70-118.compute-1.amazonaws.com:8080/pluginManager/available)
+    1. Add SonarQube in [Global Configuration](http://ec2-52-205-70-118.compute-1.amazonaws.com:8080/configure)
+        - `Name=SonarCloud`
+        - `Server URL=https://sonarcloud.io`
+        - Check <input type=checkbox checked> Environment variables Enable injection of SonarQube server configuration as build environment variables
+    1. Click `Save`
+    1. Create new pipeline and connect it to the github repo <https://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@github.com/davidmargolis/course-3-project-1.git>
+    1. Click [Scan Repository Now](http://ec2-52-205-70-118.compute-1.amazonaws.com:8080/job/pipeline/indexing/console)
+
+
+
+
 1. [Setup Postgres and SonarQube](https://www.fosslinux.com/24429/how-to-install-and-configure-sonarqube-on-centos-7.htm)
     1. Run commands:
        ```
@@ -199,8 +221,6 @@ notifications.
        && sudo systemctl start sonarqube \
        && sudo systemctl status sonarqube
        ```
-1. Log into Jenkins <http://ec2-54-211-207-91.compute-1.amazonaws.com:8080/>
-1. Create pipeline and connect it to the github repo
 
 
 ### Setup
