@@ -121,12 +121,12 @@ notifications.
     ```
     export SONAR_TOKEN=2c581c9ee6c76c94a440467e3abb59b06750b992
     ```
-1. Install jenkins on EC2
+1. Install docker, java 11, and jenkins on EC2
     ```
     sudo yum update –y \
         && sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo \
         && sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key \
-        && sudo amazon-linux-extras install java-openjdk11 -y \
+        && sudo amazon-linux-extras install docker java-openjdk11 -y \
         && sudo yum install jenkins -y \
         && sudo systemctl enable jenkins \
         && sudo systemctl start jenkins \

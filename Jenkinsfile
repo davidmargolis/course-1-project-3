@@ -1,12 +1,26 @@
 pipeline {
     agent any
     stages {
-        stage('SCM') {
+        stage('Check versions')
             steps {
-                git url: 'https://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@github.com/davidmargolis/course-3-project-1.git'
+                sh '''
+                    git --version
+                    mvn -version
+                '''
+            }
+        stage('Clone repo')
+            steps {
+                sh '''
+                    cd "$(mktemp -d)"
+                    sh 'git clone https://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@github.com/davidmargolis/course-3-project-1.git'
+                '''
+            }
+        stage('Package and validate maven app') {
+            steps {
+                sh 'mvn clean package sonar:sonar'
             }
         }
-        stage('build && SonarQube analysis') {
+        stage('Build && SonarQube analysis') {
             steps {
                 withSonarQubeEnv('My SonarQube Server') {
                     // Optionally use a Maven environment you've configured already
@@ -16,13 +30,14 @@ pipeline {
                 }
             }
         }
-        stage("Quality Gate") {
+        stage("Build Image") {
             steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
-                    // true = set pipeline to UNSTABLE, false = don't
-                    waitForQualityGate abortPipeline: true
-                }
+                sh 'docker build -t course-3-project-1 .'
+            }
+        }
+        stage("Push Image") {
+            steps {
+                sh 'docker push course-3-project-1'
             }
         }
     }
