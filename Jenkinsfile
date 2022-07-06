@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('SCM') {
             steps {
-                git url: 'https://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@github.com/davidmargolis/course-3-project-1.git'
+                git url: 'https://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@github.com/davidmargolis/course-3-project-1.git'
             }
         }
         stage('build && SonarQube analysis') {
